@@ -32,9 +32,13 @@ renderListeners = foldMap (renderListener >>> singleton)
 renderNode :: forall e. Node (Event -> Eff e Unit) -> Eff (idom :: IDOM | e) Unit
 renderNode (Text t) = text t *> pure unit
 renderNode (Element name props listeners children) = do
+  let
+    key = lookup "key" props
+    props' = delete "key" props
+
   _ <-
-    elementOpen name Nothing []
-    (renderAttributes props <> renderListeners listeners)
+    elementOpen name key []
+    (renderAttributes props' <> renderListeners listeners)
   _ <- traverse renderNode children
   _ <- elementClose name
   pure unit
