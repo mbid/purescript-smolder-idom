@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/mbid/purescript-incremental-dom.git"
+    "url": "git://github.com/mbid/purescript-smolder-idom.git"
   },
   "dependencies": {
     "purescript-prelude": "^3.0.0",
