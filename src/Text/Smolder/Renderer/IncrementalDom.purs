@@ -2,12 +2,14 @@ module Text.Smolder.Renderer.IncrementalDom (render) where
 
 import Prelude
 import Control.Monad.Eff (Eff)
+import Control.Monad.Except (runExcept)
 import DOM.Event.Event (Event)
 import DOM.Event.EventTarget (eventListener)
 import Data.Array (singleton)
 import Data.CatList (CatList)
 import Data.Foldable (foldMap)
-import Data.Foreign (Foreign, toForeign)
+import Data.Foreign (Foreign, readString, toForeign)
+import Data.Maybe (Maybe(..))
 import Data.StrMap (StrMap, delete, lookup, toUnfoldable)
 import Data.Traversable (traverse)
 import Data.Tuple (Tuple(..))
@@ -15,8 +17,8 @@ import Text.Smolder.Markup (EventHandler(..), Markup)
 import Text.Smolder.Renderer.Util (Node(..), renderMarkup)
 import Web.IncrementalDOM (IDOM, elementClose, elementOpen, text)
 
-renderAttributes :: StrMap String -> Array (Tuple String Foreign)
-renderAttributes = map toForeign >>> toUnfoldable
+renderAttributes :: StrMap Foreign -> Array (Tuple String Foreign)
+renderAttributes = toUnfoldable
 
 renderListener :: forall e. EventHandler (Event -> Eff e Unit) -> Tuple String Foreign
 renderListener (EventHandler eventName callback) =
@@ -32,7 +34,7 @@ renderNode :: forall e. Node (Event -> Eff e Unit) -> Eff (idom :: IDOM | e) Uni
 renderNode (Text t) = text t *> pure unit
 renderNode (Element name props listeners children) = do
   let
-    key = lookup "key" props
+    key = lookup "key" props >>= \f -> foldMap Just $ runExcept $ readString f
     props' = delete "key" props
 
   _ <-
