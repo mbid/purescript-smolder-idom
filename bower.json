@@ -1,7 +1,7 @@
 {
   "name": "purescript-smolder-idom",
   "homepage": "https://github.com/mbid/purescript-smolder-idom",
-  "description": "PureScript bindings for Incremental DOM",
+  "description": "Incremental DOM renderer of purescript-smolder",
   "keywords": [
     "purescript",
     "smolder",
