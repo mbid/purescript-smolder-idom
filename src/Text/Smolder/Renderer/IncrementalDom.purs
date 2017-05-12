@@ -4,6 +4,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import DOM.Event.Event (Event)
 import DOM.Event.EventTarget (eventListener)
+import DOM.HTML.Types (HTMLElement)
 import Data.Array (singleton)
 import Data.CatList (CatList)
 import Data.Foldable (foldMap)
@@ -28,6 +29,8 @@ renderListeners ::
   Array (Tuple String Foreign)
 renderListeners = foldMap (renderListener >>> singleton)
 
+foreign import embedRenderedElement :: forall e. HTMLElement -> Eff (idom :: IDOM | e) Unit
+
 renderNode :: forall e. Node (Event -> Eff e Unit) -> Eff (idom :: IDOM | e) Unit
 renderNode (Text t) = text t *> pure unit
 renderNode (Element name props listeners children) = do
@@ -41,6 +44,7 @@ renderNode (Element name props listeners children) = do
   _ <- traverse renderNode children
   _ <- elementClose name
   pure unit
+renderNode (RenderedElement el) = embedRenderedElement el
 
 render :: forall e. Markup (Event -> Eff e Unit) -> Eff (idom :: IDOM | e) Unit
 render markup = do
